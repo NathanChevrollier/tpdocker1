@@ -1,0 +1,3 @@
+Docker vous donne l'isolement sans la douleur des VM.
+Build once, run anywhere (du moins en théorie).
+Les couches de Docker sont des caches déguisés.
