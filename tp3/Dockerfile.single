@@ -1,0 +1,17 @@
+# Single-stage build for comparison
+FROM python:3.12-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+# Install deps directly in the final image (single-stage)
+COPY requirements.txt .
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+# Copy app code
+COPY app.py .
+# Create non-root user like multi-stage (not required for size, but parity)
+RUN adduser --disabled-password --gecos "" todo && chown -R todo:todo /app
+USER todo
+EXPOSE 8000
+ENV PORT=8000 TODO_DB_PATH=/app/data/todo.db
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD curl -fsS http://127.0.0.1:${PORT}/health || exit 1
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
